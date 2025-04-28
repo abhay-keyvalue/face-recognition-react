@@ -1,10 +1,76 @@
-# Getting Started with Create React App
+# Face Recognition React Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time face recognition application built with React and face-api.js. The application uses your webcam to detect and recognize faces in real-time.
+
+## Features
+
+- Real-time face detection and recognition
+- Webcam integration
+- Face matching against known faces
+- Visual feedback with bounding boxes and labels
+- Support for multiple face detection
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Webcam access
+
+## Project Structure
+
+```
+face-recognition-react/
+├── public/
+│   ├── models/           # Face detection models
+│   │   └── labels/          # Labeled face images
+│   └── src/
+│       ├── components/      # React components
+│       │   └── FaceRecognition.tsx  # Main face recognition component
+│       ├── App.tsx         # Root component
+│       └── ...            # Other configuration files
+```
+
+## Setup Instructions
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Place face detection models in the `public/models` directory:
+   - ssdMobilenetv1
+   - faceRecognitionNet
+   - faceLandmark68Net
+
+4. Place labeled face images in the `public/labels` directory:
+   ```
+   public/labels/
+   ├── Person1/
+   │   ├── 1.png
+   │   └── 2.png
+   └── Person2/
+       ├── 1.png
+       └── 2.png
+   ```
+
+5. Start the development server:
+   ```bash
+   npm start
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) to view the application
+
+## How It Works
+
+The application uses face-api.js to:
+1. Load pre-trained face detection models
+2. Access the user's webcam
+3. Detect faces in real-time
+4. Match detected faces against known face descriptors
+5. Display bounding boxes and labels around recognized faces
 
 ## Available Scripts
-
-In the project directory, you can run:
 
 ### `npm start`
 
@@ -41,30 +107,12 @@ You don't have to ever use `eject`. The curated feature set is suitable for smal
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To learn more about the technologies used in this project:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- [React documentation](https://reactjs.org/)
+- [face-api.js documentation](https://github.com/justadudewhohacks/face-api.js)
+- [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started)
 
-### Code Splitting
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License - see the LICENSE file for details.
