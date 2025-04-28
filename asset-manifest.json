@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/face-recognition-react/static/css/main.ad7dfbdd.css",
-    "main.js": "/face-recognition-react/static/js/main.ae6d656d.js",
+    "main.js": "/face-recognition-react/static/js/main.b2047bc7.js",
     "static/js/453.c175ef19.chunk.js": "/face-recognition-react/static/js/453.c175ef19.chunk.js",
     "index.html": "/face-recognition-react/index.html",
     "main.ad7dfbdd.css.map": "/face-recognition-react/static/css/main.ad7dfbdd.css.map",
-    "main.ae6d656d.js.map": "/face-recognition-react/static/js/main.ae6d656d.js.map",
+    "main.b2047bc7.js.map": "/face-recognition-react/static/js/main.b2047bc7.js.map",
     "453.c175ef19.chunk.js.map": "/face-recognition-react/static/js/453.c175ef19.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ad7dfbdd.css",
-    "static/js/main.ae6d656d.js"
+    "static/js/main.b2047bc7.js"
   ]
 }
