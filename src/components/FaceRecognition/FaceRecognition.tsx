@@ -12,13 +12,15 @@
  * - Visual feedback with bounding boxes and labels
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import './FaceRecognition.css';
 
 const FaceRecognition = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   /**
    * Loads the required face detection and recognition models from the server.
@@ -27,6 +29,7 @@ const FaceRecognition = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
+        setIsLoading(true);
         await Promise.all([
           faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
           faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
@@ -35,6 +38,8 @@ const FaceRecognition = () => {
         startWebcam();
       } catch (error) {
         console.error("Error loading models:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -45,7 +50,7 @@ const FaceRecognition = () => {
     const startWebcam = () => {
       navigator.mediaDevices
         .getUserMedia({
-          video: true,
+          video: { width: 640, height: 480 },
           audio: false,
         })
         .then((stream) => {
@@ -59,25 +64,33 @@ const FaceRecognition = () => {
     };
 
     /**
-     * Loads and processes labeled face images to create face descriptors.
+     * Loads and processes labeled face images from localStorage
      * @returns Promise resolving to an array of labeled face descriptors
      */
     const getLabeledFaceDescriptions = async () => {
-      const labels = ["Abhay", "Nini"];
-      return Promise.all(
-        labels.map(async (label) => {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      const labeledDescriptors = await Promise.all(
+        users.map(async (label: string) => {
           const descriptions: Float32Array[] = [];
-          for (let i = 1; i <= 2; i++) {
-            const img = await faceapi.fetchImage(`/labels/${label}/${i}.png`);
+          for (let i = 1; i <= 3; i++) {
+            const imageData = localStorage.getItem(`labels/${label}/${i}.png`);
+            if (!imageData) continue;
+
+            const img = await faceapi.fetchImage(imageData);
             const detections = await faceapi
               .detectSingleFace(img)
               .withFaceLandmarks()
               .withFaceDescriptor();
-            descriptions.push(detections.descriptor);
+            if (detections) {
+              descriptions.push(detections.descriptor);
+            }
           }
           return new faceapi.LabeledFaceDescriptors(label, descriptions);
         })
       );
+
+      return labeledDescriptors.filter(descriptor => descriptor.descriptors.length > 0);
     };
 
     /**
@@ -86,17 +99,29 @@ const FaceRecognition = () => {
      */
     const handleVideoPlay = async () => {
       const labeledFaceDescriptors = await getLabeledFaceDescriptions();
+      
+      if (labeledFaceDescriptors.length === 0) {
+        return;
+      }
+
       const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors);
-      console.log('faceMatcher', faceMatcher);
       const canvas = canvasRef.current;
       const video = videoRef.current;
+      const container = containerRef.current;
       
-      if (!canvas || !video) return;
+      if (!canvas || !video || !container) return;
+
+      // Set canvas dimensions to match video dimensions
+      const displaySize = { 
+        width: video.videoWidth || 640, 
+        height: video.videoHeight || 480 
+      };
       
-      const displaySize = { width: video.width, height: video.height };
       faceapi.matchDimensions(canvas, displaySize);
 
       setInterval(async () => {
+        if (!video.videoWidth || !video.videoHeight) return;
+
         const detections = await faceapi
           .detectAllFaces(video)
           .withFaceLandmarks()
@@ -136,16 +161,22 @@ const FaceRecognition = () => {
   }, []);
 
   return (
-    <div className="face-recognition-container">
-      <video
-        ref={videoRef}
-        width="600"
-        height="450"
-        autoPlay
-        muted
-        playsInline
-      />
-      <canvas ref={canvasRef} className="face-recognition-canvas" />
+    <div className="face-recognition-wrapper">
+      <div className="face-recognition-container" ref={containerRef}>
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="loading-spinner"></div>
+            <p>Loading face recognition models...</p>
+          </div>
+        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+        />
+        <canvas ref={canvasRef} className="face-recognition-canvas" />
+      </div>
     </div>
   );
 };

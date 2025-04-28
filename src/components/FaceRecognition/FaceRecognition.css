@@ -1,0 +1,110 @@
+.face-recognition-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+  aspect-ratio: 4/3;
+  min-height: 300px;
+}
+
+.face-recognition-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  color: white;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.no-users-message {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: red;
+  padding: 1rem;
+  margin: 1rem auto;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: absolute;
+  top: 4px;
+}
+
+@media (max-width: 768px) {
+  .face-recognition-container {
+    border-radius: 12px;
+    min-height: 250px;
+  }
+
+  .no-users-message {
+    margin: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .face-recognition-container {
+    width: 90%;
+    border-radius: 8px;
+    min-height: 200px;
+  }
+
+  .no-users-message {
+    padding: 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .loading-spinner {
+    width: 30px;
+    height: 30px;
+    border-width: 3px;
+  }
+}
+
+.face-recognition-wrapper {
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto;
+} 
