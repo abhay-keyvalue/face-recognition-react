@@ -31,9 +31,9 @@ const FaceRecognition = () => {
       try {
         setIsLoading(true);
         await Promise.all([
-          faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-          faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
-          faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+          faceapi.nets.ssdMobilenetv1.loadFromUri(`${process.env.PUBLIC_URL || ''}/models`),
+          faceapi.nets.faceRecognitionNet.loadFromUri(`${process.env.PUBLIC_URL || ''}/models`),
+          faceapi.nets.faceLandmark68Net.loadFromUri(`${process.env.PUBLIC_URL || ''}/models`),
         ]);
         startWebcam();
       } catch (error) {
@@ -69,7 +69,7 @@ const FaceRecognition = () => {
      */
     const getLabeledFaceDescriptions = async () => {
       const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
+
       const labeledDescriptors = await Promise.all(
         users.map(async (label: string) => {
           const descriptions: Float32Array[] = [];
