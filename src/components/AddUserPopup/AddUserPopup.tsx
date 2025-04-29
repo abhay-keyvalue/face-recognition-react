@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import './AddUserPopup.css';
 
@@ -13,16 +13,100 @@ interface UploadState {
   previews: string[];
   isUploading: boolean;
   error: string | null;
+  isCameraActive: boolean;
+  capturedImages: string[];
 }
 
 const AddUserPopup: React.FC<AddUserPopupProps> = ({ onClose, onUserAdded }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [state, setState] = useState<UploadState>({
     name: '',
     images: [],
     previews: [],
     isUploading: false,
-    error: null
+    error: null,
+    isCameraActive: true,
+    capturedImages: []
   });
+
+  useEffect(() => {
+    if (state.isCameraActive) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+  }, [state.isCameraActive]);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: false
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      setState(prev => ({ ...prev, error: 'Failed to access camera' }));
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const captureImage = async () => {
+    if (!videoRef.current || state.capturedImages.length >= 3) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(videoRef.current, 0, 0);
+    const imageData = canvas.toDataURL('image/png');
+
+    // Validate if the captured image contains a face
+    const img = await faceapi.fetchImage(imageData);
+    const detections = await faceapi
+      .detectSingleFace(img)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (!detections) {
+      setState(prev => ({ ...prev, error: 'No face detected in the captured image' }));
+      return;
+    }
+
+    const newCapturedImages = [...state.capturedImages, imageData];
+    setState(prev => ({
+      ...prev,
+      capturedImages: newCapturedImages,
+      error: null
+    }));
+
+    if (newCapturedImages.length === 3) {
+      // Convert captured images to files
+      const files = await Promise.all(
+        newCapturedImages.map(async (dataUrl: string, index: number) => {
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          return new File([blob], `captured-${index + 1}.png`, { type: 'image/png' });
+        })
+      );
+      setState(prev => ({
+        ...prev,
+        images: files,
+        previews: newCapturedImages,
+        isCameraActive: false
+      }));
+    }
+  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setState(prev => ({ ...prev, name: e.target.value }));
@@ -120,7 +204,9 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ onClose, onUserAdded }) => 
         images: [],
         previews: [],
         isUploading: false,
-        error: null
+        error: null,
+        isCameraActive: true,
+        capturedImages: []
       });
 
       onUserAdded();
@@ -155,17 +241,58 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ onClose, onUserAdded }) => 
           </div>
 
           <div className="form-group">
-            <label htmlFor="images">Upload 3 Face Images:</label>
-            <input
-              type="file"
-              id="images"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              required
-            />
-            <p className="help-text">Please upload exactly 3 clear face images</p>
+            <label>Upload Method:</label>
+            <div className="upload-methods">
+              <button
+                type="button"
+                className={`upload-method-button ${state.isCameraActive ? 'active' : ''}`}
+                onClick={() => setState(prev => ({ ...prev, isCameraActive: true }))}
+              >
+                Scan Face
+              </button>
+              <button
+                type="button"
+                className={`upload-method-button ${!state.isCameraActive ? 'active' : ''}`}
+                onClick={() => setState(prev => ({ ...prev, isCameraActive: false }))}
+              >
+                Upload Files
+              </button>
+            </div>
           </div>
+
+          {!state.isCameraActive ? (
+            <div className="form-group">
+              <label htmlFor="images">Upload 3 Face Images:</label>
+              <input
+                type="file"
+                id="images"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                required
+              />
+              <p className="help-text">Please upload exactly 3 clear face images</p>
+            </div>
+          ) : (
+            <div className="camera-container">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="camera-view"
+              />
+              <div className="camera-controls">
+                <button
+                  type="button"
+                  className="capture-button"
+                  onClick={captureImage}
+                  disabled={state.capturedImages.length >= 3}
+                >
+                  Capture Image ({state.capturedImages.length}/3)
+                </button>
+              </div>
+            </div>
+          )}
 
           {state.previews.length > 0 && (
             <div className="image-previews">
