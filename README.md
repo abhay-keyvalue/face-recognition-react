@@ -9,6 +9,8 @@ A real-time face recognition application built with React and face-api.js. The a
 - Face matching against known faces
 - Visual feedback with bounding boxes and labels
 - Support for multiple face detection
+- User management system with face image storage
+- Camera-based face capture for user registration
 
 ## Prerequisites
 
@@ -21,14 +23,55 @@ A real-time face recognition application built with React and face-api.js. The a
 ```
 face-recognition-react/
 ├── public/
-│   ├── models/           # Face detection models
-│   │   └── labels/          # Labeled face images
-│   └── src/
-│       ├── components/      # React components
-│       │   └── FaceRecognition.tsx  # Main face recognition component
-│       ├── App.tsx         # Root component
-│       └── ...            # Other configuration files
+│   └── models/           # Face detection models
+├── src/
+│   ├── components/
+│   │   ├── FaceRecognition/  # Main face recognition component
+│   │   ├── AddUserPopup/     # User registration component
+│   │   └── UserList/         # User management component
+│   ├── App.tsx              # Root component
+│   └── ...                  # Other configuration files
 ```
+
+## Components Documentation
+
+### AddUserPopup Component
+The AddUserPopup component provides a user interface for registering new users in the face recognition system. It offers two methods for adding user images:
+
+1. **Camera Capture Mode**:
+   - Allows capturing up to 3 face images using the device's camera
+   - Validates each captured image to ensure it contains a detectable face
+   - Provides real-time preview of captured images
+
+2. **File Upload Mode**:
+   - Allows uploading up to 3 face images from the device
+   - Validates uploaded images for face detection
+   - Provides preview of uploaded images
+
+Key Features:
+- Face detection validation using face-api.js
+- Local storage for user data and images
+- Error handling for invalid images
+- User-friendly interface with clear instructions
+
+### UserList Component
+The UserList component manages and displays the list of registered users in the system. It provides the following functionality:
+
+1. **User Display**:
+   - Lists all registered users with their names
+   - Shows user images on demand
+   - Handles empty state when no users are registered
+
+2. **User Management**:
+   - Delete user functionality with confirmation
+   - Updates the list in real-time when users are added or removed
+   - Maintains user data in local storage
+
+Key Features:
+- Collapsible user cards
+- Image preview functionality
+- Confirmation dialog for user deletion
+- Real-time synchronization with the face recognition system
 
 ## Setup Instructions
 
@@ -43,23 +86,12 @@ face-recognition-react/
    - faceRecognitionNet
    - faceLandmark68Net
 
-4. Place labeled face images in the `public/labels` directory:
-   ```
-   public/labels/
-   ├── Person1/
-   │   ├── 1.png
-   │   └── 2.png
-   └── Person2/
-       ├── 1.png
-       └── 2.png
-   ```
-
-5. Start the development server:
+4. Start the development server:
    ```bash
    npm start
    ```
 
-6. Open [http://localhost:3000](http://localhost:3000) to view the application
+5. Open [http://localhost:3000](http://localhost:3000) to view the application
 
 ## How It Works
 
@@ -69,6 +101,11 @@ The application uses face-api.js to:
 3. Detect faces in real-time
 4. Match detected faces against known face descriptors
 5. Display bounding boxes and labels around recognized faces
+
+The user management system:
+1. Stores user data and face images in local storage
+2. Validates face images during user registration
+3. Provides real-time updates to the face recognition system
 
 ## Available Scripts
 
