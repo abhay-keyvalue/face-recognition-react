@@ -103,7 +103,7 @@ const AddUserPopup: React.FC<AddUserPopupProps> = ({ onClose, onUserAdded }) => 
         ...prev,
         images: files,
         previews: newCapturedImages,
-        isCameraActive: false
+        isCameraActive: true
       }));
     }
   };
